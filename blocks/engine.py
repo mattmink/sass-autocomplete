@@ -9,37 +9,16 @@ class Engine:
         else:
             return myview.endswith(extension)
 
-
-    def loadSettings():
-        return sublime.load_settings('sassSolution.sublime-settings')
-
-
-    def saveSettings():
-        sublime.save_settings('sassSolution.sublime-settings')
-
-
-    def getFolders():
-        return Engine.loadSettings().get('folders')
-
-
-    def getFiles():
-        return Engine.loadSettings().get('files')
-
-
-    def setFolders(newList):
-        Engine.loadSettings().set('folders',newList)
-
-
-    def setFiles(newList):
-        Engine.loadSettings().set('files',newList)
-
-
-    def eraseFiles():
-        Engine.loadSettings().erase('files');
-
-
-    def eraseFolders():
-        Engine.loadSettings().erase('folders');
+    def getSassFolder(view):
+        currentFilePath=view.file_name();
+        sassDirIndex=currentFilePath.find("/scss/");
+        sassFolder=''
+        if sassDirIndex < 0:
+            sassDirIndex=currentFilePath.find("/sass/");
+        if sassDirIndex >= 0:
+            sassDirIndex+=5
+            sassFolder=currentFilePath[:sassDirIndex]
+        return sassFolder
 
 
     def getFoldersFilesRecursively(folder):
@@ -52,25 +31,11 @@ class Engine:
         return matches
 
 
-    def filterFilesAndFoldersToCurrentProject(folders,files,view):
-        currentProjectPath=view.window().folders()[0];
-
-        filteredFolders = [folder for folder in folders if currentProjectPath in folder]
-        filteredFiles = [file for file in files if currentProjectPath in file]
-
-        return (filteredFolders,filteredFiles)
-
-
-    def getFilesAndFoldersText(folders,files,view):
-        folders,files=Engine.filterFilesAndFoldersToCurrentProject(folders,files,view)
+    def getSassFolderText(folder,view):
         code=''
 
-        for x in folders:
-            for file in Engine.getFoldersFilesRecursively(x):
-                code+=open(file,'r', encoding="utf8").read()
-
-        for x in files:
-            code+=open(x,'r' ,encoding="utf8").read()
+        for file in Engine.getFoldersFilesRecursively(folder):
+            code+=open(file,'r', encoding="utf8").read()
 
         return code
 
@@ -131,8 +96,10 @@ class Engine:
 
     def runEngine(self,view):
         if Engine.isSass(view):
-                Engine.completionList=[]
-                allSass=Engine.getFilesAndFoldersText(Engine.getFolders(),Engine.getFiles(),view)
+            Engine.completionList=[]
+            sassFolder=Engine.getSassFolder(view)
+            if sassFolder != '':
+                allSass=Engine.getSassFolderText(sassFolder, view)
 
                 Engine.completionList+=Engine.addVariablesCompletion(r'\$([\w*-]*):(.*?);',allSass)
                 Engine.completionList+=Engine.addMixinsCompletion('\@mixin ([\w*-]*)\s{0,}(\((.*?)\)|{|\n)',allSass)

@@ -1,3 +1,0 @@
-Future Work:
-	add support to @extend directive completion in Sass
-	add support to Less

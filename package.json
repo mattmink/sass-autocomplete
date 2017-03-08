@@ -1,19 +1,19 @@
 {
-  "name": "sass-solution",
+  "name": "sass-autocomplete",
   "version": "1.0.0",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ahmedam55/sassSolution.git"
+    "url": "git+https://github.com/matthewjmink/sass-autocomplete.git"
   },
-  "author": "",
+  "author": "Matt Mink",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/ahmedam55/sassSolution/issues"
+    "url": "https://github.com/matthewjmink/sass-autocomplete/issues"
   },
-  "homepage": "https://github.com/ahmedam55/sassSolution#readme",
+  "homepage": "https://github.com/matthewjmink/sass-autocomplete#readme",
   "dependencies": {
     "gulp": "^3.9.1",
     "gulp-concat": "^2.6.1"
