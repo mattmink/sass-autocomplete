@@ -1,1 +1,31 @@
-[]
+[
+    {
+        "id":"preferences",
+        "children":[
+            {
+                "id":"package-settings",
+                "children":[
+                    {
+                        "caption":"SASS AutoComplete ",
+                        "children":[
+                            {
+                                "command":"open_file",
+                                "args":{
+                                    "file":"${packages}/sass-autocomplete/sass-autocomplete.sublime-settings"
+                                },
+                                "caption":"Settings – Default"
+                            },
+                            {
+                                "command":"open_file",
+                                "args":{
+                                    "file":"${packages}/User/sass-autocomplete.sublime-settings"
+                                },
+                                "caption":"Settings – User"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+]
