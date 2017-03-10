@@ -1,8 +1,17 @@
 class Engine:
-    completionList=[]
+    sassCompletionList=[]
+    htmlCompletionList=[]
 
     def isSass(myview):
         extension='.scss'
+
+        if(isinstance(myview,sublime.View)):
+            return myview.file_name().endswith(extension)
+        else:
+            return myview.endswith(extension)
+
+    def isHtml(myview):
+        extension='.html'
 
         if(isinstance(myview,sublime.View)):
             return myview.file_name().endswith(extension)
@@ -89,6 +98,16 @@ class Engine:
 
         return variablesCompletion
 
+    def addCssClassesCompletion(pattern,code):
+        classesCompletion=[]
+
+        for className in re.findall(pattern,code):
+            item=('.'+className, className)
+            if classesCompletion.count(item) <= 0:
+                classesCompletion.append(item)
+
+        return classesCompletion
+
 
     def removeDollarSlashes(text):
         return text.replace('\\','')
@@ -96,11 +115,17 @@ class Engine:
 
     def runEngine(self,view):
         if Engine.isSass(view):
-            Engine.completionList=[]
+            Engine.sassCompletionList=[]
             sassFolder=Engine.getSassFolder(view)
             if sassFolder != '':
                 allSass=Engine.getSassFolderText(sassFolder, view)
 
-                Engine.completionList+=Engine.addVariablesCompletion(r'\$([\w*-]*):(.*?);',allSass)
-                Engine.completionList+=Engine.addMixinsCompletion('\@mixin ([\w*-]*)\s{0,}(\((.*?)\)|{|\n)',allSass)
-                Engine.completionList+=Engine.addFunctionsCompletion('\@function ([\w*-]*)\s{0,}(\((.*?)\)|{|\n)',allSass)
+                Engine.sassCompletionList+=Engine.addVariablesCompletion(r'\$([\w*-]*):(.*?);',allSass)
+                Engine.sassCompletionList+=Engine.addMixinsCompletion('\@mixin ([\w*-]*)\s{0,}(\((.*?)\)|{|\n)',allSass)
+                Engine.sassCompletionList+=Engine.addFunctionsCompletion('\@function ([\w*-]*)\s{0,}(\((.*?)\)|{|\n)',allSass)
+        if Engine.isHtml(view):
+            Engine.htmlCompletionList=[]
+            currentProjectPath = view.window().folders()[0];
+            allSass=Engine.getSassFolderText(currentProjectPath, view)
+
+            Engine.htmlCompletionList+=Engine.addCssClassesCompletion('\.(-?[_a-zA-Z]+[_a-zA-Z0-9-]*)',allSass)
