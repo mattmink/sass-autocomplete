@@ -20,7 +20,7 @@ class SassAutocompleteCommand(sublime_plugin.EventListener):
 
         isSassCompletion = view.match_selector(locations[0], 'source.scss')
         isHtmlCompletion = view.match_selector(locations[0], 'text.html string.quoted')
-        
+
         if isSassCompletion:
             return Engine.sassCompletionList
         if isHtmlCompletion:

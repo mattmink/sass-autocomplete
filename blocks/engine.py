@@ -2,21 +2,38 @@ class Engine:
     sassCompletionList=[]
     htmlCompletionList=[]
 
-    def isSass(myview):
-        extension='.scss'
+    def loadSettings():
+        return sublime.load_settings('sass-autocomplete.sublime-settings')
 
-        if(isinstance(myview,sublime.View)):
-            return myview.file_name().endswith(extension)
+    def getHtmlExtensions():
+        return Engine.loadSettings().get('extensions').get('html')
+
+    def getSassExtensions():
+        return Engine.loadSettings().get('extensions').get('sass')
+
+    def getCurrentFileExtension(view):
+        fileName=''
+        extension=''
+
+        if(isinstance(view,sublime.View)):
+            fileName=view.file_name();
         else:
-            return myview.endswith(extension)
+            fileName=view
 
-    def isHtml(myview):
-        extension='.html'
+        fileNameList=fileName.split('.')
 
-        if(isinstance(myview,sublime.View)):
-            return myview.file_name().endswith(extension)
-        else:
-            return myview.endswith(extension)
+        if len(fileNameList) > 1:
+            extension=fileNameList[len(fileNameList) - 1]
+
+        return extension
+
+    def isSass(view):
+        fileExtension=Engine.getCurrentFileExtension(view)
+        return Engine.getSassExtensions().count(fileExtension) > 0
+
+    def isHtml(view):
+        fileExtension=Engine.getCurrentFileExtension(view)
+        return Engine.getHtmlExtensions().count(fileExtension) > 0
 
     def getSassFolder(view):
         currentFilePath=view.file_name();
