@@ -7,17 +7,20 @@ import fnmatch
 pathSlash ='/' if sublime.platform()!='windows' else '\\'
 
 class SassAutocompleteCommand(sublime_plugin.EventListener):
-    def on_activated(self, view):       
+    def on_activated_async(self, view):
+        print(view)
         isSass = Engine.isSass(view);
         isHtml = Engine.isHtml(view);
-        if (isHtml and not len(Engine.htmlCompletionList)) or (isSass and not len(Engine.sassCompletionList)):
+        isNewView = Engine.currentProjectPath != view.window().folders()[0];
+        if isNewView or (isHtml and not len(Engine.htmlCompletionList)) or (isSass and not len(Engine.sassCompletionList)):
             Engine.runEngine(self,view)
 
-    def on_post_save(self, view):        
-        Engine.runEngine(self,view)
+    def on_post_save_async(self, view):
+        isSass = Engine.isSass(view);
+        if(isSass):
+            Engine.runEngine(self,view)
 
     def on_query_completions(self, view, prefix, locations):
-
         isSassCompletion = view.match_selector(locations[0], 'source.scss')
         isHtmlCompletion = view.match_selector(locations[0], 'text.html string.quoted')
 
@@ -29,6 +32,7 @@ class SassAutocompleteCommand(sublime_plugin.EventListener):
 class Engine:
     sassCompletionList=[]
     htmlCompletionList=[]
+    currentProjectPath = ''
 
     def loadSettings():
         return sublime.load_settings('sass-autocomplete.sublime-settings')
@@ -39,6 +43,9 @@ class Engine:
     def getSassExtensions():
         return Engine.loadSettings().get('extensions').get('sass')
 
+    def getExcludeDirs():
+        return list(Engine.loadSettings().get('exclude'))
+
     def getCurrentFileExtension(view):
         fileName=''
         extension=''
@@ -48,10 +55,11 @@ class Engine:
         else:
             fileName=view
 
-        fileNameList=fileName.split('.')
+        if(fileName):
+            fileNameList=fileName.split('.')
 
-        if len(fileNameList) > 1:
-            extension=fileNameList[len(fileNameList) - 1]
+            if len(fileNameList) > 1:
+                extension=fileNameList[len(fileNameList) - 1]
 
         return extension
 
@@ -77,8 +85,13 @@ class Engine:
 
     def getFoldersFilesRecursively(folder):
         matches=[]
+        excludes=Engine.getExcludeDirs();
+        print(excludes)
 
         for root, dirnames, filenames in os.walk(folder):
+            if len(excludes) > 0:
+                dirnames = list(set(dirnames) - set(excludes))
+
             for filename in fnmatch.filter(filenames, '*.scss'):
                 matches.append(os.path.join(root, filename))
 
@@ -159,6 +172,7 @@ class Engine:
 
 
     def runEngine(self,view):
+        Engine.currentProjectPath = view.window().folders()[0];
         if Engine.isSass(view):
             Engine.sassCompletionList=[]
             sassFolder=Engine.getSassFolder(view)
@@ -170,7 +184,6 @@ class Engine:
                 Engine.sassCompletionList+=Engine.addFunctionsCompletion('\@function ([\w*-]*)\s{0,}(\((.*?)\)|{|\n)',allSass)
         if Engine.isHtml(view):
             Engine.htmlCompletionList=[]
-            currentProjectPath = view.window().folders()[0];
-            allSass=Engine.getSassFolderText(currentProjectPath, view)
+            allSass=Engine.getSassFolderText(Engine.currentProjectPath, view)
 
             Engine.htmlCompletionList+=Engine.addCssClassesCompletion('\.(-?[_a-zA-Z]+[_a-zA-Z0-9-]*)',allSass)

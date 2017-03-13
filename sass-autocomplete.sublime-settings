@@ -2,5 +2,6 @@
 	"extensions": {
 		"html": ["html"],
 		"sass": ["sass", "scss"]
-	}
+	},
+	"exclude": []
 }
