@@ -8,7 +8,6 @@ pathSlash ='/' if sublime.platform()!='windows' else '\\'
 
 class SassAutocompleteCommand(sublime_plugin.EventListener):
     def on_activated_async(self, view):
-        print(view)
         isSass = Engine.isSass(view);
         isHtml = Engine.isHtml(view);
         isNewView = Engine.currentProjectPath != view.window().folders()[0];
@@ -86,7 +85,6 @@ class Engine:
     def getFoldersFilesRecursively(folder):
         matches=[]
         excludes=Engine.getExcludeDirs();
-        print(excludes)
 
         for root, dirnames, filenames in os.walk(folder):
             if len(excludes) > 0:
